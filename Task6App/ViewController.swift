@@ -12,11 +12,11 @@ class ViewController: UIViewController {
     @IBOutlet private weak var randomLabel: UILabel!
     @IBOutlet private weak var numSlider: UISlider!
 
+    private var answer: Int = 0
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        randomLabel.text = String(arc4random_uniform(101))
-        numSlider.value = 50
+       retry()
     }
 
     private func showAlert(message: String) {
@@ -26,19 +26,31 @@ class ViewController: UIViewController {
         )
         alert.addAction(UIAlertAction(title: "再挑戦",
                                       style: .default,
-                                      handler: { (_) in
-                                        self.randomLabel.text = String(arc4random_uniform(101))
-                                        self.numSlider.setValue(50, animated: false)
+                                      handler: { [weak self](_) in
+                                        self?.retry()
                                       })
         )
         present(alert, animated: true, completion: nil)
     }
 
     @IBAction private func onJudge(_ sender: Any) {
-        let labelNum = Int(randomLabel.text!)
-        let sliderNumForInt = Int(numSlider.value)
-        labelNum == sliderNumForInt ? showAlert(message: "当たり!\nあなたの数\(sliderNumForInt)")
-                                    : showAlert(message: "はずれ!\nあなたの数\(sliderNumForInt)")
+        let sliderValue = Int(numSlider.value)
+        let firstLine = answer == sliderValue ? "当たり!" : "はずれ!"
+        showAlert(message: "\(firstLine)\nあなたの数\(sliderValue)")
     }
 
+    private func makeAnswer() -> Int {
+        Int(arc4random_uniform(100)) + 1
+    }
+
+    private func updateRamdomLabel() {
+        randomLabel.text = String(answer)
+    }
+
+    private func retry() {
+        answer = makeAnswer()
+        updateRamdomLabel()
+
+        numSlider.value = 50
+    }
 }
